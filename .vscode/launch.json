@@ -1,0 +1,56 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Launch Server",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/server/server.js",
+            "restart": true,
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/server",
+            "env": {
+                "NODE_ENV": "development",
+                "PORT": "5000"
+            },
+            "skipFiles": ["<node_internals>/**"]
+        },
+        {
+            "name": "Launch Server (nodemon)",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/server/node_modules/.bin/nodemon",
+            "args": ["server.js"],
+            "restart": true,
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}/server",
+            "env": {
+                "NODE_ENV": "development",
+                "PORT": "5000"
+            }
+        },
+        {
+            "name": "Launch Frontend Server",
+            "type": "node",
+            "request": "launch",
+            "program": "${workspaceFolder}/serve-static.js",
+            "console": "integratedTerminal",
+            "cwd": "${workspaceFolder}"
+        },
+        {
+            "name": "Attach to Server",
+            "type": "node",
+            "request": "attach",
+            "port": 9229,
+            "restart": true,
+            "skipFiles": ["<node_internals>/**"]
+        }
+    ],
+    "compounds": [
+        {
+            "name": "Debug Full Stack",
+            "configurations": ["Launch Server", "Launch Frontend Server"],
+            "stopAll": true
+        }
+    ]
+}

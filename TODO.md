@@ -1,14 +1,22 @@
-# TODO: Launch the Server
+# TODO - Corrections des paiements OxaPay
 
-- [ ] Create .env file with MONGODB_URI and JWT_SECRET placeholders
-- [ ] Create User.js model with Mongoose schema
-- [ ] Create authMiddleware.js with JWT authentication middleware
-- [ ] Fix bcrypt.compare in auth.js login route
-- [ ] Update server.js to include dotenv, cors, auth routes, and app.listen
-- [ ] Run the server using node server/server.js
+## Terminé:
+- [x] 1. Corriger le sélecteur de crypto dans `public/js/transactions.js`
+- [x] 2. Mettre le minimum de dépôt à $0.5 USD dans `server/payement/deposit.controller.js`
+- [x] 3. Mettre le minimum de retrait à $0.5 USD dans `server/payement/withdraw.controller.js`
+- [x] 4. Mettre à jour l'affichage du minimum dans `public/deposit.html`
+- [x] 5. Mettre à jour l'affichage du minimum dans `public/withdraw.html`
+- [x] 6. Les variables .env sont déjà utilisées dans `oxapay.service.js` (OXAPAY_MERCHANT_API_KEY et OXAPAY_PAYOUT_API_KEY)
 
-# TODO: Connect Front-end to Hosted Backend
+## Résumé des corrections:
+1. **Bug du sélecteur crypto**: Le code utilisait `document.getElementById('crypto-selector')` qui n'existait pas. Maintenant il utilise correctement `document.querySelector('input[name="crypto"]:checked')` pour récupérer la crypto sélectionnée via les boutons radio.
 
-- [x] Update API_URL in public/connec.html to https://egback-1.onrender.com
-- [x] Update API_URL in public/inscri.html to https://egback-1.onrender.com
-- [x] Test registration and login functionality (Login successful, registration returns 400 - possibly user exists or backend issue)
+2. **Minimum dépôt**: Changé de $10 USD à $0.5 USD pour toutes les cryptomonnaies.
+
+3. **Minimum retrait**: Changé de $20 USD à $0.5 USD pour toutes les cryptomonnaies.
+
+4. **Services OxaPay**: Les deux services (dépôt et retrait) sont déjà connectés et utilisent les variables d'environnement:
+   - `OXAPAY_MERCHANT_API_KEY` pour les factures de dépôt
+   - `OXAPAY_PAYOUT_API_KEY` pour les retraits
+   - `OXAPAY_BASE_URL` pour l'URL de l'API
+   - `OXAPAY_WEBHOOK_URL` pour le webhook
