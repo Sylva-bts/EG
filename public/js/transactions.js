@@ -270,8 +270,8 @@ function showWithdrawalInfo(withdrawalData) {
     withdrawInfo.style.display = 'block';
     
     // Update info
-    document.getElementById('withdraw-amount').textContent = withdrawalData.amount + ' ' + withdrawalData.crypto;
-    document.getElementById('withdraw-address').textContent = withdrawalData.address;
+    document.getElementById('withdraw-info-amount').textContent = withdrawalData.amount + ' ' + withdrawalData.crypto;
+    document.getElementById('withdraw-info-address').textContent = withdrawalData.address;
     document.getElementById('withdraw-transaction-id').textContent = withdrawalData.payout_id || withdrawalData.transaction_id;
     
     // Store transaction ID for polling
@@ -344,7 +344,11 @@ function resetWithdrawForm() {
     
     document.getElementById('withdraw-amount').value = '';
     document.getElementById('withdraw-address').value = '';
-    document.getElementById('withdraw-crypto').value = 'USDT';
+
+    const defaultCrypto = document.getElementById('withdraw-crypto-USDT');
+    if (defaultCrypto) {
+        defaultCrypto.checked = true;
+    }
 }
 
 // ==================== QR CODE ====================

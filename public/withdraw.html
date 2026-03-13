@@ -123,12 +123,12 @@
                 
                 <div class="detail-row">
                     <span class="info-label">Montant</span>
-                    <span class="info-value" id="withdraw-amount">-</span>
+                    <span class="info-value" id="withdraw-info-amount">-</span>
                 </div>
                 
                 <div class="detail-row">
                     <span class="info-label">Adresse</span>
-                    <span class="info-value" id="withdraw-address">-</span>
+                    <span class="info-value" id="withdraw-info-address">-</span>
                 </div>
                 
                 <div class="detail-row">
@@ -151,46 +151,6 @@
     </div>
 
     <script src="js/transactions.js"></script>
-    <script>
-        // Override crypto selector to work with radio buttons
-        document.addEventListener('DOMContentLoaded', function() {
-            // Handle radio button selection
-            const cryptoOptions = document.querySelectorAll('.crypto-option input');
-            cryptoOptions.forEach(option => {
-                option.addEventListener('change', function() {
-                    cryptoOptions.forEach(o => o.checked = false);
-                    this.checked = true;
-                });
-            });
-
-            // Update form to get crypto value from radio buttons
-            const withdrawForm = document.getElementById('withdraw-form-element');
-            withdrawForm.addEventListener('submit', async function(e) {
-                e.preventDefault();
-                
-                const amount = document.getElementById('withdraw-amount').value;
-                const address = document.getElementById('withdraw-address').value;
-                
-                // Get selected crypto
-                const selectedCrypto = document.querySelector('input[name="crypto"]:checked');
-                const crypto = selectedCrypto ? selectedCrypto.value : 'USDT';
-                
-                if (!amount || amount <= 0) {
-                    alert('Veuillez entrer un montant valide');
-                    return;
-                }
-                
-                if (!address) {
-                    alert('Veuillez entrer une adresse wallet');
-                    return;
-                }
-                
-                await createWithdrawal(amount, crypto, address);
-            });
-
-            // Load balance
-            loadBalance();
-        });
-    </script>
+    
 </body>
 </html>
