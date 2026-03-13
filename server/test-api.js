@@ -1,111 +1,133 @@
 const axios = require('axios');
 
-const BASE_URL = 'http://localhost:5000';
+const BASE_URL = process.env.BASE_URL || 'http://localhost:5000';
+const TEST_CRYPTO = process.env.TEST_CRYPTO || 'USDT';
+const TEST_DEPOSIT_AMOUNT = Number(process.env.TEST_DEPOSIT_AMOUNT || 1);
+const TEST_WITHDRAW_AMOUNT = Number(process.env.TEST_WITHDRAW_AMOUNT || 0.5);
+const TEST_WITHDRAW_ADDRESS = process.env.TEST_WITHDRAW_ADDRESS || 'TQn9Y2khEsLJW1ChVWFMSMeRDow5KcbLSE'; // TRC20-like sample
 
 let authToken = '';
 let userId = '';
+let depositInvoiceId = '';
+let withdrawTransactionId = '';
+
+function authHeaders() {
+  return { Authorization: `Bearer ${authToken}` };
+}
 
 async function testAPI() {
-    console.log('========================================');
-    console.log('🧪 TEST API - Connexion et Paiements');
-    console.log('========================================\n');
+  console.log('========================================');
+  console.log('🧪 TEST API - Paiements (dépôt/retrait)');
+  console.log('========================================');
+  console.log(`🌐 BASE_URL: ${BASE_URL}`);
+  console.log(`💱 Crypto: ${TEST_CRYPTO}`);
+  console.log(`💵 Dépôt: ${TEST_DEPOSIT_AMOUNT} USD | Retrait: ${TEST_WITHDRAW_AMOUNT} USD`);
+  console.log('');
 
-    try {
-        // Test 1: Health Check
-        console.log('📌 Test 1: Health Check');
-        const health = await axios.get(`${BASE_URL}/api/health`);
-        console.log('✅ Serveur actif:', health.data);
-        console.log('');
+  try {
+    console.log('📌 Test 1: Health Check');
+    const health = await axios.get(`${BASE_URL}/api/health`, { timeout: 15000 });
+    console.log('✅ Serveur actif:', health.data);
+    console.log('');
 
-        // Test 2: Inscription
-        console.log('📌 Test 2: Inscription');
-        const registerData = {
-            username: `testuser_${Date.now()}`,
-            email: `test_${Date.now()}@test.com`,
-            password: 'test123456'
-        };
-        try {
-            const register = await axios.post(`${BASE_URL}/api/auth/register`, registerData);
-            console.log('✅ Inscription réussie:', register.data);
-        } catch (err) {
-            if (err.response?.status === 400) {
-                console.log('⚠️  Utilisateur déjà existant, on continue avec login...');
-            } else {
-                console.log('❌ Erreur inscription:', err.response?.data || err.message);
-            }
-        }
-        console.log('');
+    const registerData = {
+      username: `testuser_${Date.now()}`,
+      email: `test_${Date.now()}@test.com`,
+      password: 'test123456'
+    };
 
-        // Test 3: Connexion
-        console.log('📌 Test 3: Connexion');
-        try {
-            const login = await axios.post(`${BASE_URL}/api/auth/login`, {
-                email: registerData.email,
-                password: registerData.password
-            });
-            authToken = login.data.token;
-            userId = login.data.user.id;
-            console.log('✅ Connexion réussie!');
-            console.log('   User ID:', userId);
-            console.log('   Token:', authToken.substring(0, 50) + '...');
-        } catch (err) {
-            console.log('❌ Erreur connexion:', err.response?.data || err.message);
-            console.log('   Note: Vous devez peut-être vous inscrire d\'abord via l\'interface');
-        }
-        console.log('');
+    console.log('📌 Test 2: Inscription');
+    const register = await axios.post(`${BASE_URL}/api/auth/register`, registerData, { timeout: 20000 });
+    console.log('✅ Inscription réussie:', register.data?.message || 'OK');
+    console.log('');
 
-        // Test 4: Get Balance (avec auth)
-        if (authToken) {
-            console.log('📌 Test 4: Obtenir le solde');
-            try {
-                const balance = await axios.get(`${BASE_URL}/api/payments/balance`, {
-                    headers: { Authorization: `Bearer ${authToken}` }
-                });
-                console.log('✅ Solde actuel:', balance.data.data);
-            } catch (err) {
-                console.log('❌ Erreur:', err.response?.data || err.message);
-            }
-            console.log('');
-        }
+    console.log('📌 Test 3: Connexion');
+    const login = await axios.post(`${BASE_URL}/api/auth/login`, {
+      email: registerData.email,
+      password: registerData.password
+    }, { timeout: 20000 });
 
-        // Test 5: Create Deposit (avec auth)
-        if (authToken) {
-            console.log('📌 Test 5: Créer un dépôt');
-            try {
-                const deposit = await axios.post(`${BASE_URL}/api/payments/deposit`, 
-                    { amount: 10, crypto: 'USDT' },
-                    { headers: { Authorization: `Bearer ${authToken}` } }
-                );
-                console.log('✅ Dépôt créé:', deposit.data.data);
-            } catch (err) {
-                console.log('❌ Erreur dépôt:', err.response?.data || err.message);
-            }
-            console.log('');
-        }
+    authToken = login.data.token;
+    userId = login.data.user.id;
+    console.log('✅ Connexion réussie');
+    console.log('   User ID:', userId);
+    console.log('');
 
-        // Test 6: Get Transactions (avec auth)
-        if (authToken) {
-            console.log('📌 Test 6: Obtenir l\'historique des transactions');
-            try {
-                const transactions = await axios.get(`${BASE_URL}/api/payments/transactions`, {
-                    headers: { Authorization: `Bearer ${authToken}` }
-                });
-                console.log('✅ Transactions:', transactions.data.data);
-            } catch (err) {
-                console.log('❌ Erreur:', err.response?.data || err.message);
-            }
-            console.log('');
-        }
+    console.log('📌 Test 4: Solde initial');
+    const balanceBefore = await axios.get(`${BASE_URL}/api/payments/balance`, {
+      headers: authHeaders(),
+      timeout: 15000
+    });
+    console.log('✅ Solde:', balanceBefore.data.data);
+    console.log('');
 
-        console.log('========================================');
-        console.log('🏁 Tests terminés!');
-        console.log('========================================');
+    console.log('📌 Test 5: Création dépôt');
+    const deposit = await axios.post(`${BASE_URL}/api/payments/deposit`, {
+      amount: TEST_DEPOSIT_AMOUNT,
+      crypto: TEST_CRYPTO
+    }, {
+      headers: authHeaders(),
+      timeout: 30000
+    });
 
-    } catch (err) {
-        console.error('❌ Erreur générale:', err.message);
+    depositInvoiceId = deposit.data?.data?.invoice_id;
+    console.log('✅ Dépôt créé:', deposit.data.data);
+    console.log('');
+
+    if (depositInvoiceId) {
+      console.log('📌 Test 6: Statut dépôt');
+      const depositStatus = await axios.get(`${BASE_URL}/api/payments/status/${depositInvoiceId}`, {
+        headers: authHeaders(),
+        timeout: 20000
+      });
+      console.log('✅ Statut dépôt:', depositStatus.data.data);
+      console.log('');
     }
-    
+
+    console.log('📌 Test 7: Création retrait');
+    const withdraw = await axios.post(`${BASE_URL}/api/payments/withdraw`, {
+      amount: TEST_WITHDRAW_AMOUNT,
+      crypto: TEST_CRYPTO,
+      address: TEST_WITHDRAW_ADDRESS
+    }, {
+      headers: authHeaders(),
+      timeout: 30000
+    });
+
+    withdrawTransactionId = withdraw.data?.data?.transaction_id;
+    console.log('✅ Retrait créé:', withdraw.data.data);
+    console.log('');
+
+    if (withdrawTransactionId) {
+      console.log('📌 Test 8: Statut retrait');
+      const withdrawalStatus = await axios.get(`${BASE_URL}/api/payments/withdraw/${withdrawTransactionId}`, {
+        headers: authHeaders(),
+        timeout: 20000
+      });
+      console.log('✅ Statut retrait:', withdrawalStatus.data.data);
+      console.log('');
+    }
+
+    console.log('📌 Test 9: Historique transactions');
+    const transactions = await axios.get(`${BASE_URL}/api/payments/transactions?limit=5`, {
+      headers: authHeaders(),
+      timeout: 20000
+    });
+    console.log('✅ Transactions (5 max):', {
+      total: transactions.data?.data?.pagination?.total,
+      count: transactions.data?.data?.transactions?.length
+    });
+    console.log('');
+
+    console.log('========================================');
+    console.log('🏁 Tests paiements terminés avec succès');
+    console.log('========================================');
     process.exit(0);
+  } catch (err) {
+    const payload = err.response?.data || err.message;
+    console.error('❌ Échec test API paiements:', payload);
+    process.exit(1);
+  }
 }
 
 testAPI();
