@@ -14,7 +14,8 @@ exports.oxapayWebhook = async (req, res) => {
             return res.status(403).json({ message: "Webhook non autorisé" });
         }
 
-        const { status, order_id, amount, invoice_id, track_id } = req.body;
+        const payload = req.body?.data && typeof req.body.data === "object" ? req.body.data : req.body;
+        const { status, order_id, amount, invoice_id, track_id } = payload;
 
         console.log("Webhook received:", { status, order_id, invoice_id, track_id, amount });
 

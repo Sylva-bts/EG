@@ -113,12 +113,14 @@ exports.checkDepositStatus = async (req, res) => {
             const invoiceStatus = await OxaPayService.checkInvoiceStatus(invoice_id);
             
             // Map OxaPay status to our status
+            const providerStatus = String(invoiceStatus.status || '').toLowerCase();
+
             let newStatus = transaction.status;
-            if (['Paid', 'Confirming', 'Completed'].includes(invoiceStatus.status)) {
+            if (['paid', 'confirming', 'completed'].includes(providerStatus)) {
                 newStatus = 'paid';
-            } else if (invoiceStatus.status === 'Expired') {
+            } else if (providerStatus === 'expired') {
                 newStatus = 'expired';
-            } else if (invoiceStatus.status === 'Failed') {
+            } else if (providerStatus === 'failed') {
                 newStatus = 'failed';
             }
 

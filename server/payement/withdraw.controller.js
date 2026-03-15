@@ -154,10 +154,12 @@ exports.checkWithdrawalStatus = async (req, res) => {
                 const payoutStatus = await OxaPayService.checkPayoutStatus(transaction.invoice_id);
                 
                 // Map OxaPay status to our status
+                const providerStatus = String(payoutStatus.status || '').toLowerCase();
+
                 let newStatus = transaction.status;
-                if (['Completed', 'Success', 'Paid'].includes(payoutStatus.status)) {
+                if (['completed', 'success', 'paid'].includes(providerStatus)) {
                     newStatus = 'completed';
-                } else if (payoutStatus.status === 'Rejected' || payoutStatus.status === 'Failed') {
+                } else if (providerStatus === 'rejected' || providerStatus === 'failed') {
                     newStatus = 'rejected';
                     
                     // Refund balance if rejected
