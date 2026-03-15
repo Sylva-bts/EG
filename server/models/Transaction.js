@@ -29,6 +29,9 @@ const transactionSchema = new mongoose.Schema({
     invoice_id: {
         type: String
     },
+    order_id: {
+        type: String
+    },
     status: {
         type: String,
         enum: ['pending', 'paid', 'completed', 'rejected', 'expired', 'failed'],

@@ -48,7 +48,8 @@ exports.createDeposit = async (req, res) => {
             amount_fiat: amount,
             amount_crypto: invoice.pay_amount || invoice.amount,
             address: invoice.address,
-            invoice_id: invoice.invoice_id,
+            invoice_id: String(invoice.track_id || invoice.invoice_id || ''),
+            order_id: orderId,
             status: 'pending'
         });
 
@@ -59,12 +60,12 @@ exports.createDeposit = async (req, res) => {
             success: true,
             message: "Facture créée avec succès",
             data: {
-                invoice_id: invoice.invoice_id,
+                invoice_id: String(invoice.track_id || invoice.invoice_id || ''),
                 payment_address: invoice.address,
                 amount_crypto: invoice.pay_amount || invoice.amount,
                 currency: cryptoUpper,
                 payment_url: invoice.payment_url,
-                expire_time: invoice.expire_time,
+                expire_time: invoice.expire_time || invoice.expired_at,
                 status: 'pending'
             }
         });
@@ -112,12 +113,14 @@ exports.checkDepositStatus = async (req, res) => {
             const invoiceStatus = await OxaPayService.checkInvoiceStatus(invoice_id);
             
             // Map OxaPay status to our status
+            const providerStatus = String(invoiceStatus.status || '').toLowerCase();
+
             let newStatus = transaction.status;
-            if (invoiceStatus.status === 'Paid' || invoiceStatus.status === 'Completed') {
+            if (['paid', 'confirming', 'completed'].includes(providerStatus)) {
                 newStatus = 'paid';
-            } else if (invoiceStatus.status === 'Expired') {
+            } else if (providerStatus === 'expired') {
                 newStatus = 'expired';
-            } else if (invoiceStatus.status === 'Failed') {
+            } else if (providerStatus === 'failed') {
                 newStatus = 'failed';
             }
 
