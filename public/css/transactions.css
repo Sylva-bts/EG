@@ -127,7 +127,7 @@ header {
 }
 
 .page-title p {
-    color: var(--gray);
+    color: #b9b9d1;
 }
 
 /* ==================== CARDS ==================== */
@@ -148,6 +148,30 @@ header {
 .card-header h3 {
     font-size: 1.3rem;
     color: var(--secondary);
+}
+
+
+.flow-steps {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 10px;
+    margin-bottom: 22px;
+}
+
+.flow-step {
+    font-size: 0.8rem;
+    text-align: center;
+    padding: 10px 8px;
+    border-radius: 8px;
+    border: 1px solid var(--gray);
+    color: var(--gray);
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.flow-step.active {
+    color: var(--light);
+    border-color: var(--primary);
+    background: rgba(108, 92, 231, 0.2);
 }
 
 /* ==================== FORM ELEMENTS ==================== */
@@ -303,6 +327,9 @@ header {
     word-break: break-all;
     text-align: right;
     max-width: 60%;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
 }
 
 .copy-btn {
@@ -416,6 +443,12 @@ header {
     border-radius: 10px;
     margin-bottom: 20px;
     font-weight: 500;
+    animation: slideIn 0.25s ease-out;
+}
+
+@keyframes slideIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 .message-error {
@@ -530,6 +563,10 @@ header {
 
     .crypto-selector {
         grid-template-columns: repeat(3, 1fr);
+    }
+
+    .flow-steps {
+        grid-template-columns: 1fr;
     }
 
     .container {

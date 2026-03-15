@@ -270,8 +270,8 @@ function showWithdrawalInfo(withdrawalData) {
     withdrawInfo.style.display = 'block';
     
     // Update info
-    document.getElementById('withdraw-amount').textContent = withdrawalData.amount + ' ' + withdrawalData.crypto;
-    document.getElementById('withdraw-address').textContent = withdrawalData.address;
+    document.getElementById('withdraw-amount-value').textContent = withdrawalData.amount + ' ' + withdrawalData.crypto;
+    document.getElementById('withdraw-address-value').textContent = withdrawalData.address;
     document.getElementById('withdraw-transaction-id').textContent = withdrawalData.payout_id || withdrawalData.transaction_id;
     
     // Store transaction ID for polling
@@ -342,9 +342,13 @@ function resetWithdrawForm() {
     withdrawInfo.style.display = 'none';
     withdrawStatus.style.display = 'none';
     
-    document.getElementById('withdraw-amount').value = '';
-    document.getElementById('withdraw-address').value = '';
-    document.getElementById('withdraw-crypto').value = 'USDT';
+    document.getElementById('withdraw-amount-input').value = '';
+    document.getElementById('withdraw-address-input').value = '';
+
+    const defaultRadio = document.getElementById('withdraw-crypto-USDT');
+    if (defaultRadio) {
+        defaultRadio.checked = true;
+    }
 }
 
 // ==================== QR CODE ====================
@@ -446,8 +450,8 @@ document.addEventListener('DOMContentLoaded', function() {
         withdrawForm.addEventListener('submit', async function(e) {
             e.preventDefault();
             
-            const amount = document.getElementById('withdraw-amount').value;
-            const address = document.getElementById('withdraw-address').value;
+            const amount = document.getElementById('withdraw-amount-input').value;
+            const address = document.getElementById('withdraw-address-input').value;
             
             // Get selected crypto from radio buttons
             const selectedCrypto = document.querySelector('input[name="crypto"]:checked');
@@ -470,9 +474,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Copy button handlers
     document.addEventListener('click', function(e) {
         if (e.target.classList.contains('copy-btn')) {
-            const address = e.target.dataset.address;
-            if (address) {
-                copyToClipboard(address);
+            const targetId = e.target.dataset.target;
+            const valueFromTarget = targetId ? document.getElementById(targetId)?.textContent?.trim() : '';
+            const directValue = e.target.dataset.address;
+            const textToCopy = valueFromTarget || directValue;
+
+            if (textToCopy) {
+                copyToClipboard(textToCopy);
             }
         }
     });

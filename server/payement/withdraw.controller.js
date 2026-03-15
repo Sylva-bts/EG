@@ -82,9 +82,9 @@ exports.createWithdrawal = async (req, res) => {
                 crypto: cryptoUpper,
                 amount_fiat: amount,
                 address: address,
-                invoice_id: payout.trans_id || payout.order_id,
+                invoice_id: String(payout.track_id || payout.trans_id || payout.order_id || ''),
                 status: 'pending',
-                transaction_hash: payout.txid
+                transaction_hash: payout.txid || payout.tx_id
             });
 
             await transaction.save();
@@ -94,7 +94,7 @@ exports.createWithdrawal = async (req, res) => {
                 message: "Retrait en cours de traitement",
                 data: {
                     transaction_id: transaction._id,
-                    payout_id: payout.trans_id,
+                    payout_id: payout.track_id || payout.trans_id,
                     amount: amount,
                     crypto: cryptoUpper,
                     address: address,
@@ -155,7 +155,7 @@ exports.checkWithdrawalStatus = async (req, res) => {
                 
                 // Map OxaPay status to our status
                 let newStatus = transaction.status;
-                if (payoutStatus.status === 'Completed' || payoutStatus.status === 'Success') {
+                if (['Completed', 'Success', 'Paid'].includes(payoutStatus.status)) {
                     newStatus = 'completed';
                 } else if (payoutStatus.status === 'Rejected' || payoutStatus.status === 'Failed') {
                     newStatus = 'rejected';
